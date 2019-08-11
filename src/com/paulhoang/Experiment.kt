@@ -59,6 +59,10 @@ class Blah: Run {
     fun aBlahFun() { println("func from class") }
 }
 
+data class MyData(val aProperty: String) {
+
+}
+
 fun main() {
     val blah: String
 
@@ -88,4 +92,8 @@ fun main() {
     b.anInterfaceFun()
     if(b is Blah)
         b.aBlahFun()
+
+    val myData = MyData("a value")
+    myData.copy()
+
 }

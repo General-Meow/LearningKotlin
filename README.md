@@ -47,7 +47,18 @@ fun noReturnAgain() { }
 
 #### Chapter 4 - Classes and properties
 - Like Java constructors run when you create an instance of a class
-- Constructors are automatically created using the class definition paremeters
+- A primary constructor is automatically created using the class definition parameters
+- Secondary constructors are manually defined using the `constructor` keyword and must first call the primary constructor using `this(x,y,z)`
+
+```kotlin
+class AClass(val param: String) {
+  constructor(anotherParam: String) {
+    this(anotherParam)
+    //do some stuff
+  }
+}
+```
+
 - In order to define class properties, you either need to define the class parameters with `val` or `var` (for the constructor) or define them in the class body
 - Initializer blocks are like static blocks in Java, these run in the order of appearance in the class and are used to define code that initialize class properties
 - Initializers run after running the constructor
@@ -128,9 +139,9 @@ class SomeOtherChild: SomeOtherParent() {
 - An `abstract` class is a class in the class heiarchy tree that cannot be instantiated
 - You use abstract classes to stop applications/devs from instantiating types that dont make sense
 - Abstract classes can contain both implementated functions and abstract functions
-- Absrtract functions are defined with the `abstract` keyword and no function body
+- Abstract functions are defined with the `abstract` keyword and no function body
 - The first concreate class to inherit from a abstract class `MUST` implement all functions (be overridden) that are still `abstract`
-- Abstract properies/classes are `open` by default
+- Abstract properties/classes are `open` by default
 - Interfaces allow you to define behaviour but it cannot hold intialized state(properties)
 - Interfaces can hold both abstract and concrete methods
 - By default properties and functions are abstract in Interfaces
@@ -185,27 +196,75 @@ fun main() {
         b.aBlahFun()
 }
 ```
-#### Chapter 7
-- sdfds
+#### Chapter 7 Data classes, equality, Any, overloading, deconstructing, copying, default values
+- Java has the Object type that all classes extend, Kotlin has the `Any` class
+- The `Any` class like java has implementations for equals, toString, hashcode etc
+- Like Java POJOs, Kotlin has data classes that represent data
+- to define a data class, simply prepend the keyword `data` in the class definition
 
+```kotlin
+data class SomeData(val property1: String, val property2: Int) {
+    val property3: String //this property is not included in any overridden methods (equals, hashcode, toString etc)
+    
+    constructor(var someOther: String) {
+    this("", 2);
+    property3 = someOther
+    }
+}
+```
+- Data classes automatically override the equals, hashcode and toString methods
+- Data classes MUST have a constructor with at LEAST one property (otherwise it wont make sense)
+- The parameters of the Data class parameters MUST be declared `val` or `var`
+- Data classes must not be `open` or `abstract`
+- The equals method is overridden to look for property based equality, so it will include all properties defined in the class definition NOT the ones defined in the class body
+- The `==` operator calls the `equals` method on the class and by default (the inherited one from Any) is defined as same instance (object on heap) equality
+- So normal classes will need to override the `equals` method to get any real meaning out of it, while data classes already implemented sensibly
+- As the `==` operator can change depending on the equals implementation, if you want to check for object instance equality, Kotlin has the `===` operator to do that  
+- Overloading is just like java, you have to at least change the parameters and optionally the return type
+- There are a couple of ways to deconstruct objects to its properties
+  - use the componentN method to generically refer to properties that have been defined (in order) in the (class)data. It starts from 1 so `obj.component1()`
+  - use destructure declaration to break all the components of a type into it individual components `val (property1, property2) = obj` this will create val property1 and property2 that will hold the first and second properties of the obj type  
+- When using data classes, its heavily recommended that you make it as immutable as possible, this mean you should basically make everything `val`
+- If you need to change a value of a data object, you basically need to `copy` function that data types have, this function can take named arguments that change the value of properties before copying
 
+```kotlin
+data class MyDataClass(val blah: String, val anotherProp: String, val thirdOne: String) {}
 
+fun main(args: Array<String>) {
+    val data1 = MyDataClass("value")
+    val data2 = data1.copy(anotherProp = "zzzzz", thirdOne = "asdsad")
+}
+```
+- Constructors and functions can have default values for parameters, this makes using them easier as you dont need to always provide the parameters if the default ones are ok
+  - there are 3 ways to use functions with default parameters
+  - provide all the params, which will override any default params
+  - provide parameters in order of definition, any parameters left out will use default values (you cannot skip parameters)
+  - provide parameters in a named format, this will allow you to provide parameters in any order
+  
+```kotlin
+fun aFunction(param1: String, param2: String, param3: Int = 100, param4: Short = 1, param5: String = "I'm a default value") {
+}
 
+fun main(args: ArrayList<String>) {
+    
+    //provide all params - overriding any default 
+    aFunction("a param 1", "another param 2", 5, 2, "not the default value")
+    
+    //provide parameters omitting some of the default ones
+    aFunction("a param 1", "another param 2", 5)
 
+    //provide only the mandatory params, all the default ones will be used
+    aFunction("a param 1", "another param 2")
 
+    //named parameters
+    aFunction(param1 = "a param1", param3 = 30, param2 = "out of order works!")
+}
+```
 
-
-
-
-
-
-
-
-
-
-
-
-
+#### Chapter 8 Null and null safety
+- Just like Java, Kotlin has `null` and NullPointerExceptions (although it is harder to cause NPEs)
+- `null` is an absence of a value
+- Normally 
 
 
 
