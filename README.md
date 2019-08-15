@@ -264,9 +264,109 @@ fun main(args: ArrayList<String>) {
 #### Chapter 8 Null and null safety
 - Just like Java, Kotlin has `null` and NullPointerExceptions (although it is harder to cause NPEs)
 - `null` is an absence of a value
-- Normally 
+- When you define variables, they won't allow an initialization of null unless you define the type with a `?` e.g. `val x: String?` This means that the value can be a string OR null
+- In order to use a variable that can be null, you must first check that the value isn't null, otherwise it will not compile
+- You could be for `null` in a number of ways in kotlin
+  - standard if check
+    - if the compiler can guarentee that no other thread/code has access to the variable and that it cannot change in between the null check and its usage then this will work fine
+  - the `?.` check "safe call operator" - `variableName?.propertyOrFunction`
+    - this reads, if the left side (variableName) isn't null call/return the propertyFunction value
+    - this operator can be chained, so `var?.var?.var?.function` can be done
+  - the `?.let` check - like the safe call operator in that it behaves like a transaction but allows you to define a code block that is safe. 
+    - Reads, if the left side is not null, 'lets' execute the block
+    - Within the code block, you need to reference the left side varible as `it` 
+  - the elvis operator `val x = y?.property ?: 'z'` 
+    - This reads, return property if the y variable isn't null and the property isn't null otherwise return z 
 
+```kotlin
+class AClass(var aProperty: String?) {
+    fun printProperty() {
+        println(this.aProperty)
+    }
+}
 
+fun ifCheck() {
+    //if null check
+    val value: String? = null
+    //this wont work
+    println(value.length)
+    //this will work
+    if(value != null) {
+        println(value.length)
+    }
+}
+```
 
+```kotlin
+class AClass(var aProperty: String?) {
+    fun printProperty() {
+        println(this.aProperty?.length)
+    }
+}
 
+fun safeCall() {
+    val safe = AClass(null)
+    safe.printProperty()
+}
+```
 
+```kotlin
+class AClass(var aProperty: String?) {
+    fun printProperty() {
+        this.aProperty?.let {
+            println(it.length)
+        }
+    }
+}
+
+fun letsCall() {
+    val lets = AClass(null)
+    lets.printProperty()
+}
+```
+
+```kotlin
+class AClass(var aProperty: String?) {
+    fun printProperty() {
+       println(aProperty?.length ?: 0)
+    }
+}
+
+fun elvis() {
+    val elvis = AClass(null)
+    elvis.printProperty()
+}
+```
+
+- To assert if a variable is not not null, you use the `!!` operator, e.g. `!!aNullVarible` will throw a NPE
+- Try/catch/finally and throws all behave the same as Java, but can also be expressions, meaning they can return values
+- Like the issue with checking for null, you can also do a `safe cast` with `as?`
+- Unlike Java, Kotlin doesn't differentiate between checked/uncheck exceptions, it only uses unchecked, so no definitions in the method
+
+```kotlin
+fun tryCatchExpression(val param: String) {
+    val result = try { param.toInt() } catch (e: Exception) { 0 }
+    println(result)
+}
+```
+
+#### Chapter 9 Collections
+- You can create an array of null with `arrayOfNulls`
+- Arrays have functions like `sum`, `average`, `sort`, `reverse`, `min`, `max`, `contains`
+- Like Java, Kotlin has collections
+- Set, List, Map are pretty much the same BUT they are immutable - they dont have methods like remove, add, clear etc
+- To create them you use the methods, `setOf`, `listOf`, `mapOf`
+- Even though the collections are immutable, the values within the collection are not. So you can change the properties of an object in a collection BUT you cant replace (reference) different objects
+- To create mutable collections, use the methods: `mutableSetOf`, `mutableListOf`, `mutableMapOf`
+- Mutable collections have methods such as, `add`, `remove`, `clear`, `addAll`, `removalAll`, `retainAll` etc
+- The mutable collections are actually sub interfaces to the immutable types
+- You can make copies of collections and convert them from immutable to mutable and vice versa by using methods `toMutableList()`, `toMutableSet()`, `toSet()`, `toList()`, `toMap()`, `toMutableMap()`
+- Collections in Kotlin are like Java, for them to work correctly, the equals and hashcode methods need to be implemented properly
+  - hashcodes are like labels for buckets, objects in a collection with the same hashcode will be stored in the same bucket
+  - the hashcode algorithm should be able to generate numbers that are random/spread evenly so that searching is quick
+  - the equals method need to be implemented properly such that its reflective a == b & b == a, its transitive a == b, b == c and c == a, and a == a
+  - if 2 objects are equal, then they MUST return the same hashcode
+  - but objects that are not equal can also (but doesnt have to) return the same hashcode
+  - when searching/adding/removing from a collection, it first uses the hashcode to look into the correct bucket
+  - then it looks at all the objects in the bucket and uses the equals method to see if the object already exists
+-  

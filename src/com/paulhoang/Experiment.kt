@@ -63,22 +63,57 @@ data class MyData(val aProperty: String) {
 
 }
 
+//null checks where if null check wont work as aProperty can be changed by anything
+class ANullClass(var aProperty: String?) {
+    fun printProperty() {
+//        if(this.aProperty != null) {
+//            println(this.aProperty.length)
+//        }
+    }
+}
+
+
+//null checks where if null check wont work as aProperty can be changed by anything
+class SafeNullClass(var aProperty: String?) {
+    fun printProperty() {
+        println(this.aProperty?.length)
+    }
+}
+
+class LetNullClass(var aProperty: String?) {
+    fun printProperty() {
+        this.aProperty?.let {
+            println("length: ${it.length}")
+        }
+    }
+}
+
+class ElvisNullClass(var aProperty: String?) {
+    fun printProperty() {
+        println("length: ${this.aProperty?.length ?: 0}")
+    }
+}
+
 fun main() {
     val blah: String
 
+    //constructor
     val food = Food("a value for aProperty")
-
     println(food.someMethod())
 
+    //inheritence and string interpolation
     val child = Child()
     println("The child is ${child.age} years old")
 
+    //inheritence
     val anotherChild = AnotherChild(Integer(100))
     println("The anotherChild is ${anotherChild.age} years old")
 
+    //inheritence with overridden method
     val someOtherChild = SomeOtherChild()
     println("The someOtherChild is ${someOtherChild.age} years old")
 
+    //casting
     val run: Runnable = Hmm()
     run.blah()
     run.anotherBlah()
@@ -93,7 +128,31 @@ fun main() {
     if(b is Blah)
         b.aBlahFun()
 
+    //data classes
     val myData = MyData("a value")
     myData.copy()
 
+    //null
+    val aNullVal: String? = null
+    // println(aNullVal.length) this wont work unless you check for null first
+    if(aNullVal != null) {
+        println(aNullVal.length)
+    }
+
+    println("testing if null checks")
+    //if null that cannot work
+    val x = ANullClass(null)
+    x.printProperty()
+
+    //safe call, will print null
+    val safe = SafeNullClass(null)
+    safe.printProperty()
+
+    //let safe
+    val lets = LetNullClass(null)
+    lets.printProperty()
+
+    //elvis operator
+    val elvis = ElvisNullClass(null)
+    elvis.printProperty()
 }
