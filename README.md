@@ -66,6 +66,7 @@ class AClass(val param: String) {
 - You can manually define and customise the getters and setters straight after defining the property
 - Getters and setter methods are `get()` and `set(value)`
 - When defining a setter/getter, you must not refer to the property your getting/setting. this is because you'll cause a recursive call and cause a stack overload
+- To use a setter you simply refer to the property and set it with `=` e.g. `anObject.property = aValueYouWantToSet`
 
 ```kotlin
 class Food {
@@ -73,7 +74,7 @@ class Food {
 }
 
 class Food {
-    var aPropery: String
+    var aProperty: String
 
     init {
         aProperty = "sdfdsf"
@@ -369,4 +370,109 @@ fun tryCatchExpression(val param: String) {
   - but objects that are not equal can also (but doesnt have to) return the same hashcode
   - when searching/adding/removing from a collection, it first uses the hashcode to look into the correct bucket
   - then it looks at all the objects in the bucket and uses the equals method to see if the object already exists
--  
+
+
+#### Chapter 10 Generics
+- Generics allows you to write consistent code that will work for multiple (restricted) types
+- Generics are defined like in Java where you define a generic class with angled brackets `class MyGenericType<T> {}`
+- When using a generic type, you do a mental `find and replace` on the generic part
+- The standard for Generics is to use `T` for type, `E` for elements in collections and `K, V` for key values
+- You can restrict the types you can use for a generic type by adding the type after the generics e.g. `Class MyGenericType<T: Pet> {}` this will allow only Pets and subtypes of Pets to be used
+- Polymorphism works with Class types but not for generic types
+
+```kotlin
+open class Pet(val name: String){ }
+
+open class Dog(name: String): Pet(name) { }
+
+interface Retailer<T> {
+    fun sell(): T
+}
+
+class PetRetailer: Retailer<Pet> {
+    override fun sell() = Pet("a pet name")
+}
+
+class DogRetailer: Retailer<Dog> {
+    override fun sell() = Dog("a dog")
+}
+
+fun method() {
+    val petRetailer: Retailer<Pet> = PetRetailer()
+
+    //This will not work as by default Generics are not polymorphic until you define the Generic type to be a covariant
+    //With the out keyword interface Retailer<out T> {}
+    val catRetailer:  Retailer<Pet> = DogRetailer() // <-- this will not compile
+}
+```
+
+- If you want to use polymorphism on generic types in the variable type, you'll need to use `Covariant` and `Contravariant` types
+- `Covariant` types allow you to use polymorphism on generic types.
+- To create a covariant generic type, you simply need to add the `out` keyword in the type definition `class Blah<out T>`
+- Like the keyword suggests, covariants only supports types outside, this means:
+  - That the generic type can only be used outside of function/method parameters; so functions cannot accept parameter of the generic type
+  - Constructors and function return types can be of that covariant types
+  - Constructors when defining properties of a class can only be `val` as defining them as `var` will leave them open to change
+  - The reason why you cannot use covariant types with function parameters, is because you dont want the chance in changing any internal properties types
+```kotlin
+class ACovariant<out T>(val property: T) { //this will work
+    fun aFunction(param: T) //this will not work
+    fun anotherFunction(): T //this will work
+}
+```
+
+```kotlin
+fun aFunction() {
+    val retailer: Retailer<Pet> = DogRetailer() //this will now compile
+}
+```
+- But what if you want to be able to assign a generic type that is a super type of the defined generic type?
+  - What if you want to assign a salesman that can sell all types of pets rather just a Dog?
+- You can use the opposite to `covariants` and use `contravariants` with the `in` keyword
+```kotlin
+class ContravariantRetailer<T: Pet>(val salesman: Salesman<T>) {
+    fun sell() = salesman
+}
+
+
+class Salesman<in T: Pet> {
+}
+
+fun main() {
+    //here we have the retailer being a dog retailer but the salemans can be a general purpose pet salesman
+    //so the Pet type is a super type but its also a restricted super type of Pet
+    val someOtherDogRetailer: ContravariantRetailer<Dog> = ContravariantRetailer(Salesman<Pet>())
+    
+    val someSalesman: Salesman<Dog>
+}
+```
+- like when using `out` there are rules for `in`
+  - You can use the generic type as parameter types for functions
+  - You cannot use the in generic type as a return value
+  - You cannot use the in generic type as a constructor or any val or var types
+- You should consider using contravariance properly as all variables of type `Vet<Cat>` will be able to hold `Vet<Pet>`
+  - In the above salesman example, all defined salesman types can hold a generic type that is a super type of Pet
+  - We only want to do that in the context of a Retailer
+  - To fix this issue, you can locally restrict contravariance to only where its required
+  - This is done by moving the `in` keyword to only where its required (in the definition of the `Contravariant` type) 
+```kotlin
+class ContravariantRetailer<T: Pet>(val salesman: Salesman<in T>) {
+    fun sell() = salesman
+}
+
+class Salesman<T: Pet> {
+}
+
+fun main() {
+    //we can still set a salesman of type pet to a retailer of type dog
+    val someOtherDogRetailer: ContravariantRetailer<Dog> = ContravariantRetailer(Salesman<Pet>())
+    //but we cant do that globally now, this wont compile
+    val dogSalesman: Salesman<Dog> = Salesman<Pet>()
+}
+```
+- invariance is when you can only assign objects types to the variable type `val aList: List<Canine> = List<Canine>()`
+  - this wont work, the invariant generic types aren't polymorphic `val aList: List<Canine> = List<Dog>()`
+- covariance is when you can be polymorphic with the Generic type where the generic object type is a subtype of the defined variable `val aList: List<Canine> = List<Dog>()`
+  - done with the `out` keyword 
+- contravariance is when you can also be polymorphic with the Generic type where the generic onject type is a parent type of the defined varible `val aList: List<Canine> = List<Pet>()`
+  - done with the `in` keyword
