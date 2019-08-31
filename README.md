@@ -476,3 +476,57 @@ fun main() {
   - done with the `out` keyword 
 - contravariance is when you can also be polymorphic with the Generic type where the generic onject type is a parent type of the defined varible `val aList: List<Canine> = List<Pet>()`
   - done with the `in` keyword
+  
+#### Chapter 11 Lamda's
+- Like Javascript and Java 8+, Kotlin is a functional programming language
+  - this means that Functions are also a first class citizen
+  - this also means that like in OO languages, functions can be assigned to variables, passed as parameters and returned from functions
+- A lambda looks like this `{ x: Int -> x + 1}`
+  - The lambda is wrapped in curly braces
+  - The first part of the definition the `x: Int` is the parameter list e.g. the input params to the lamda
+  - The `->` is the seperator between the parameters and the main body of the lamda
+  - The body `x + 1` is what runs when you `invoke` the lambda, the result of the last line is typically automatically returned 
+- Lambdas have no name, they are anonymous
+- A high order function is a function that takes another function (lambda) as a parameter
+- The are two ways to invoke a lambda, using the invoke method or just calling it using the variables name with parenthesis
+```kotlin
+fun main() {
+  val myLambda = {x: Int -> x + 1}
+  //using the invoke method
+  println(myLambda.invoke(5))
+  //using parenthesis
+  println(myLambda(10))
+}
+```
+- Lambda's have types, although they are not like the typically types we're used to
+  - The type is also known as the `function type`
+  - They are are a combination of things and take the form `(params) -> return type`
+  - The type of the lambda defined above is `(Int) -> Int`
+  - Here's one for a lambda that adds two numbers `(Int, Int) -> Int`
+  - They dont need to take any params nor return anything, in that case its `() -> Unit`
+- The Kotlin compiler will infer the type of a lambda so you don't need to define it when assigning it to a variable
+- If you want, you can define the lambda type as so: `val anotherLambda: (Int) -> Int = { x: Int -> x + 10}`
+- For lambda's that take a single parameter, you can remove the parameter definition and referred to it as `it` in the body (this will only work if the compiler can infer the parameter type)
+  - `val aLam: (Int) -> Int = {it + 5}`
+- Just like when assigning objects to variables, the compiler cares very much about lambda types, so you wont be able to assign a lambda with different types
+- Just like objects, you can assign a lambda to the type `Any`
+- Defining a function that takes a lambda looks like `fun aFunction(aNumber: Int, myLamda: (x: Int) -> Int )`
+  - Don't forget the name that your assigning the lambda to
+  - Running this function will look like: `aFunction(7, {it + 7})`
+- There is an alternative syntax when running a function with a lambda as a parameter. It looks like this for the above example `aFunction(7) {it + 7}`
+  - Here the lambda is moved outside of the parenthesis
+  - This alternative syntax is only possible if the last parameter is a lambda
+- There is also another alt syntax for functions that just take a single lambda as a parameter
+  - If the aFunction took only a lambda, it could be called like: `aFunction {it + 7}`
+- Lamdba's could also be returned from functions e.g. `fun aRet(): (Int) -> Int {...}`
+- Using lambda's can be quite hard to read, to get around this, you can use `type alias`
+  - A `type alias` allows you to assign an alternative name to an existing type
+  - Type alias must be defined outside of a function, doing so within a function will not compile
+  - You can type alias Generic types or even the standard types `typealias NumbArr = Array<Int>` or `typealias SillyString = String`
+```kotlin
+typealias AddSeven = (Int) -> Int
+fun addSevenFun(param: Int, lambda: AddSeven) {
+    println("running the lambda with the parameter")
+    println(lambda.invoke(param))
+}
+```
