@@ -28,4 +28,5 @@ fun aFunction(aNumber: Int, myLamda: (x: Int) -> Int ) {
 fun addSevenFun(param: Int, lambda: AddSeven) {
     println("running the lambda with the parameter")
     println(lambda.invoke(param))
+    listOf(1,2,3).maxBy { selector: Int -> selector }
 }

@@ -530,3 +530,72 @@ fun addSevenFun(param: Int, lambda: AddSeven) {
     println(lambda.invoke(param))
 }
 ```
+
+#### Chapter 12 OOTB Higher Order Functions
+- Kotlin comes with a large amount of higher order functions
+- Higher order functions allow you to generically write code and then have it be provided specialist code to execute within it
+- Some of the most useful higher order functions are in the `Collections` package
+- Here are some of the functions
+  - min    - Returns the smallest value of a collection, requires the items to have some ordering
+  - minBy  - Return the smallest value using the provided lambda, the lambda must return the property/criteria to compare by. Takes a single parameter of the list type
+  - max    - Return the largest value of a collection, requires the items to have some ordering
+  - maxBy  - Return the largest value using the provided lambda, the lambda must return the property/criteria to compare by. Takes a single parameter of the list type 
+
+```kotlin
+fun examples() {
+    val numbers = listOf(1, 2, 3, 4, 5)
+    val smallestNumber = numbers.min();
+    val largestNumber = numbers.max();
+    val sumOfAll = numbers.sumBy { it }
+    
+    val hampsters = listOf(Hampster("Joe", 10), Hampster("Bob", 5), Hampster("Berry", 20), Hampster("Smiles", 3))
+    val smallestHampster = hampsters.minBy { it.size };
+    val largesttHampster = hampsters.maxBy { it.size };
+}
+```
+  - sumBy       - takes a lambda that returns the sum of all items in the list. works on Ints
+  - sumByDouble - takes a lambda that returns the sum of all items in the list. works on Doubles
+  - filter      - takes a lambda that must return a boolean (its a predicate). if true then the item is returned in the resultant list
+  - filterTo    - like filter but adds the items to an existing list
+  - filterIsInstance - returns a list of items that are of a certain class type
+  - filterNot   - negates the predicate to return a list of it items that don't match the predicate
+  - map         - returns a list of the type returned in the lambda
+  - mapTo       - map to an existing list
+  - mapNotNull
+```kotlin
+    val largestHampsters = hampsters.filter { it.size > 10 }
+    println("large hampsters $largestHampsters")
+    val hampsterSizes = hampsters.map { it.size }
+    println("all sizes $hampsterSizes")
+```
+- You can chain higher order functions together
+
+```kotlin
+    val sumOfAllHampsterSizes = hampsters.map { it.size }.sum()
+    println("sum of all sizes $sumOfAllHampsterSizes")
+```
+  - forEach    - Just like a for loop, works on lists, sets, arrays and maps. useful if your already filtering, mapping on a collection
+- Closures
+  - Lambda's have access to variables that have been defined outside the lambda
+  - When a lambda uses a value outside of the lambda, we say that its captured the variable
+  - Closure values can be updated (which isn't possible in java)
+- Splitting collections into groups
+  - groupBy    - takes a lambda returning the criteria in which to group by, this return type then becomes the key of the created map. The values are then a list of the original list type but grouped by the key
+
+```kotlin
+    val musicCollection = listOf(Song("Gold Digger", "RnB", 10.0), Song("Hey Ya!", "Pop", 5.99),
+        Song("Steal My Sunshine", "Pop", 1.0), Song("In too deep", "Alt", 2.99), Song("All the small things", "Alt", 4.99))
+
+    val categoriesToSongs = musicCollection.groupBy { it.category }
+    println("music grouped by category $categoriesToSongs")
+```
+- fold - a function that starts with an initial value and with that initial value, runs a lambda against the items in the list, saving the running result
+- foldRight - the same as fold but iterate through the list from last item to first
+- reduce - list fold but uses the first item in the list as the first item rather than providing an initial value
+- reduceRight - list reduce but iterates the list in reverse
+
+```kotlin
+    val words = listOf("A", "list", "of", "words")
+    val wordsFolded = words.fold("") { runningResult, item -> "$runningResult$item " }
+    println("all words joined: '$wordsFolded'")
+```
