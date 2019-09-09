@@ -599,3 +599,34 @@ fun examples() {
     val wordsFolded = words.fold("") { runningResult, item -> "$runningResult$item " }
     println("all words joined: '$wordsFolded'")
 ```
+
+#### Coroutines
+- Like threads coroutines let you run code asynchronously
+- Coroutines are better as they are a lot more light weight and can switch contexts with little penalty, therefore its more efficient to use coroutines
+- The run on the same thread pool as threads and while its common to have hundreds of threads running in a large app, its easily possible to have thousands of coroutines
+- A single thread can be running multiple coroutines
+- To use coroutines, you must add it as a dependency to your project `implementaion 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.0.1'`
+- To run a coroutine, you simply import the package `import kotlinx.coroutine.*` and call the method `Global.launch {...}` with a lambda that runs in the background
+- `runBlocking` is a higher order function that allows you do define a lambda that will run on the same Thread and the one that executes it
+  - you must use the function `launch` when doing this
+```kotlin
+fun aMethod() {
+    //some code goes here
+    runBlocking {
+        launch { 
+            //code to run in the coroutine  
+        }
+    }
+}
+```
+- You can pause the current thread with the Java code `Thread.sleep(xxx)`
+- But if your using coroutines, its best to use the `delay(xxx)` function instead of `Thread.sleep()`
+  - You can only use `delay` in 2 places, within a coroutine (using the launch function) or a function marked as `suspend`
+  - functions marked as `suspend` tell the compiler/runtime that it can pause
+  - functions that call a `suspend` function must also be marked as `suspend`
+```kotlin
+suspend fun aSuspendingFunc() {
+    deplay(1000)
+    println("did i just sleep for a second?")
+}
+```
